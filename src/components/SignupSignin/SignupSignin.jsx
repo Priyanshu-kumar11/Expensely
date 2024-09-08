@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./SignupSignin.css";
-import Input from "../input/input";
+import Input from "../input/Input";
 import Button from "../Button/Button";
 import { toast } from "react-toastify";
 import {
