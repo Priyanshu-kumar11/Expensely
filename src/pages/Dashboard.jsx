@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header/Header";
-import Cards from "../components/Cards/cards";
+import Cards from "../components/Cards/Cards";
 import { Modal } from "antd";
 import moment from "moment";
 import AddExpenseModal from "../components/Modals/AddExpense";
