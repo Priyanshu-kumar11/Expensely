@@ -10,17 +10,19 @@ import {
   DatePicker,
   Select,
 } from "antd";
+
 function AddExpenseModal({
   isExpenseModalVisible,
   handleExpenseCancel,
   onFinish,
 }) {
   const [form] = Form.useForm();
+  
   return (
     <Modal
       style={{ fontWeight: 600 }}
       title="Add Expense"
-      visible={isExpenseModalVisible}
+      open={isExpenseModalVisible} // Updated from visible to open
       onCancel={handleExpenseCancel}
       footer={null}
     >

@@ -1,32 +1,32 @@
-import { Card, Row } from 'antd'
-import './Cards.css'
-import React from 'react'
-import Button from '../Button/Button'
+import { Card, Row } from 'antd';
+import './Cards.css';
+import React from 'react';
+import Button from '../Button/Button';
 
-const Cards = ({totalBalance,income,expense,showExpenseModal,showIncomeModal}) => {
+const Cards = ({ totalBalance, income, expense, showExpenseModal, showIncomeModal, resetBalance }) => {
   return (
     <div>
       <Row className='my-row'>
         <Card className='my-card' bordered={true}>
           <h2>Current Balance</h2>
           <p>${totalBalance}</p>
-          <Button text="Reset Balance" blue={true}/>
+          <Button text="Reset Balance" blue={true} onClick={resetBalance} /> {/* Added onClick prop */}
         </Card>
 
         <Card className='my-card' bordered={true}>
           <h2>Total Income</h2>
           <p>${income}</p>
-          <Button text="Add Income" blue={true} onClick={showIncomeModal}/>
+          <Button text="Add Income" blue={true} onClick={showIncomeModal} />
         </Card>
 
         <Card className='my-card' bordered={true}>
-        <h2>Total Expense</h2>
+          <h2>Total Expense</h2>
           <p>${expense}</p>
-          <Button text="Add Expense" blue={true} onClick={showExpenseModal}/>
+          <Button text="Add Expense" blue={true} onClick={showExpenseModal} />
         </Card>
       </Row>
     </div>
-  )
-}
+  );
+};
 
-export default Cards
+export default Cards;

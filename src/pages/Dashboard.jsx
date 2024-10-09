@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Header from "../components/Header/Header";
 import Cards from "../components/Cards/Cards";
 import { Modal } from "antd";
@@ -13,35 +13,8 @@ import TransactionTable from "../components/TransactionTable/TransactionTable";
 import Charts from "../components/Charts/Charts";
 import NoTransactions from "../components/TransactionTable/NoTransactions";
 
-
-
 const Dashboard = () => {
   const [user] = useAuthState(auth);
-
-  //  const sampleTransactions = [
-  // {
-  //   name: "Pay day",
-  //   type: "income",
-  //   date: "2023-01-15",
-  //   amount: 2000,
-  //   tag: "salary",
-  // },
-  // {
-  //   name: "Dinner",
-  //   type: "expense",
-  //   date: "2023-01-20",
-  //   amount: 500,
-  //   tag: "food",
-  // },
-  // {
-  //   name: "Books",
-  //   type: "expense",
-  //   date: "2023-01-25",
-  //   amount: 300,
-  //   tag: "education",
-  // },
-  // ];
-
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isExpenseModalVisible, setIsExpenseModalVisible] = useState(false);
@@ -80,17 +53,16 @@ const Dashboard = () => {
   };
 
   async function addTransaction(transaction, many) {
-    // add the doc
     try {
       const docRef = await addDoc(
         collection(db, `users/${user.uid}/transactions`),
         transaction
       );
       console.log("Document written with ID: ", docRef.id);
-     if(!many) toast.success("Transaction Added!");
-      let  newArray = transactions;
-      newArray.push(transaction)
-      setTransactions(newArray)
+      if (!many) toast.success("Transaction Added!");
+
+      let newArray = [...transactions, transaction]; // Avoid mutation
+      setTransactions(newArray);
       calculateBalance();
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -101,8 +73,9 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    // get all docs from a collection
-    fetchTransactions();
+    if (user) {
+      fetchTransactions();
+    }
   }, [user]);
 
   useEffect(() => {
@@ -113,18 +86,17 @@ const Dashboard = () => {
     let incomeTotal = 0;
     let expensesTotal = 0;
 
-    transactions.forEach((transactions) => {
-      if (transactions.type === "income") {
-        incomeTotal += transactions.amount;
+    transactions.forEach((transaction) => {
+      if (transaction.type === "income") {
+        incomeTotal += transaction.amount;
       } else {
-        expensesTotal += transactions.amount;
+        expensesTotal += transaction.amount;
       }
     });
 
     setIncome(incomeTotal);
-    setExpense(expensesTotal)
-    setTotalBalance(incomeTotal - expensesTotal)
-
+    setExpense(expensesTotal);
+    setTotalBalance(incomeTotal - expensesTotal);
   };
 
   async function fetchTransactions() {
@@ -134,36 +106,52 @@ const Dashboard = () => {
       const querySnapshot = await getDocs(q);
       let transactionsArray = [];
       querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
         transactionsArray.push(doc.data());
       });
       setTransactions(transactionsArray);
-      console.log("transactions array", transactionsArray);
-      toast.success("Transactions Fetched!");
+
+      if (transactionsArray.length > 0) {
+        toast.success("Transactions Fetched!");
+      } else {
+        toast.info("No transactions found");
+      }
     }
     setLoading(false);
   }
 
-  let sortedTransactions = transactions.sort((a,b) => {
-    return new Date(a.date) - new Date(b.date);
-  })
+  const sortedTransactions = useMemo(() => {
+    return transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [transactions]);
+
+  // Function to reset current balance, income, and expenses to zero
+  const resetBalance = () => {
+    setTotalBalance(0);
+    setIncome(0);
+    setExpense(0);
+    setTransactions([]); // Optionally reset transactions
+    toast.success("Balance, income, and expenses reset to zero!");
+  };
 
   return (
     <div>
       <Header />
-   
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
           <Cards
-            income = {income}
-            expense = {expense}
-            totalBalance = {totalBalance}
+            income={income}
+            expense={expense}
+            totalBalance={totalBalance}
             showExpenseModal={showExpenseModal}
             showIncomeModal={showIncomeModal}
+            resetBalance={resetBalance} // Pass resetBalance function here
           />
-          {transactions && transactions.length != 0 ? <Charts sortedTransactions={sortedTransactions}/> :<NoTransactions/>}
+          {transactions.length > 0 ? (
+            <Charts sortedTransactions={sortedTransactions} />
+          ) : (
+            <NoTransactions />
+          )}
           <AddExpenseModal
             isExpenseModalVisible={isExpenseModalVisible}
             handleExpenseCancel={handleExpenseCancel}
@@ -174,7 +162,11 @@ const Dashboard = () => {
             handleIncomeCancel={handleIncomeCancel}
             onFinish={onFinish}
           />
-          <TransactionTable transactions={transactions} addTransaction={addTransaction} fetchTransactions={fetchTransactions}/>
+          <TransactionTable
+            transactions={transactions}
+            addTransaction={addTransaction}
+            fetchTransactions={fetchTransactions}
+          />
         </>
       )}
     </div>
