@@ -9,19 +9,19 @@ const Cards = ({ totalBalance, income, expense, showExpenseModal, showIncomeModa
       <Row className='my-row'>
         <Card className='my-card' bordered={true}>
           <h2>Current Balance</h2>
-          <p>${totalBalance}</p>
-          <Button text="Reset Balance" blue={true} onClick={resetBalance} /> {/* Added onClick prop */}
+          <p>Rs.{totalBalance}</p>
+          <Button text="Reset Balance" blue={true} onClick={resetBalance} />
         </Card>
 
         <Card className='my-card' bordered={true}>
           <h2>Total Income</h2>
-          <p>${income}</p>
+          <p>Rs.{income}</p>
           <Button text="Add Income" blue={true} onClick={showIncomeModal} />
         </Card>
 
         <Card className='my-card' bordered={true}>
           <h2>Total Expense</h2>
-          <p>${expense}</p>
+          <p>Rs.{expense}</p>
           <Button text="Add Expense" blue={true} onClick={showExpenseModal} />
         </Card>
       </Row>
